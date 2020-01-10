@@ -2,11 +2,11 @@ version: '3.1'
 
 services:
 
-  # db:
-  #   build: sql
-  #   restart: always
-  #   ports:
-  #     - 3306:3306
+  db:
+    build: sql
+    restart: always
+    ports:
+      - 3306:3306
 
   nginx:
     image: nginx:latest
