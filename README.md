@@ -1,10 +1,9 @@
-This installation uses synchweb from the local folder, either explicitly checked
-out or via a git submodule. If not using the submodule, will need to
+This installation uses synchweb from the local folder to allow local
+development. This needs to be cloned and initialised with dependencies.
+
+First NPM:
 ```
 git clone https://github.com/DiamondLightSource/SynchWeb.git synchweb
-```
-Otherwise:
-```
 cd synchweb/client
 npm install
 npm run-script build:dev
