@@ -1,3 +1,4 @@
 [submodule "synchweb"]
 	path = synchweb
 	url = ./synchweb
+	ignore = untracked
