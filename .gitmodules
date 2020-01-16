@@ -1,0 +1,3 @@
+[submodule "synchweb"]
+	path = synchweb
+	url = ./synchweb
