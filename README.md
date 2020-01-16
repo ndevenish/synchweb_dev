@@ -21,3 +21,12 @@ composer install
 ```
 
 Configure `synchweb/api/config.php`
+```
+cp synchweb_build/config.php synchweb/api
+```
+
+
+## Alternative
+WIP: Alternatively you cna use the synchweb_build docker image. It requires
+`--build-arg GITHUB_TOKEN=<key>` where key is gotten from:
+    https://github.com/settings/tokens/new?scopes=repo&description=Docker_secret
