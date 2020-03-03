@@ -19,5 +19,5 @@ services:
   php:
     build: php_with_mysqli
     # build: synchweb_build
-    # volumes:
+    volumes:
       - ./synchweb:/synchweb
