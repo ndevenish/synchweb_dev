@@ -11,11 +11,11 @@
     $mode = 'dev';
 
     # Database credentials, db = hostname/database
-    $isb  = array('user' => 'ispyb', 'pass' => 'ispyb', 'db' => 'db/ispyb');
+    $isb  = array('user' => 'user', 'pass' => 'pass', 'db' => 'localhost/ispyb');
     $dbtype = 'mysql';
 
 
-    # Encoded JWT key, used to sign and check validaty of jwt tokens
+    # Encoded JWT key, used to sign and check validaty of jwt tokens
     # - Create one of these using /api/authenticate/key
     #   This can be changed to invalidate all currently active tokens
     $jwt_key = '';
@@ -53,6 +53,13 @@
     # - Disables site access, showing a message
     # - This is defined in client/js/config.json
 
+    # Timezone
+    $timezone = 'Europe/London';
+
+    # Valid Components
+    #   Denotes that only staff may create proteins, otherwise they must come from replication 
+    #   with a valid `externalid`, users may still clone proteins
+    $valid_components = false;
 
     # String replacements for autoprocessing types
     # First part is searched for in the processing command line
@@ -82,38 +89,11 @@
         'pipeline=dials ' => 'DIALS',
     );
 
+    # Filtered downstream jobs
+    $downstream_filter = array();
+
     # Crystal alignment programs
     $strat_align = array('XOalign', 'dials.align_crystal');
-
-    # Places to search for autoprocessing and screening statuses. File scraping is done if no database value is available.
-    $ap_statuses = array(
-        'locations' => array('/processed', 'tmp'),
-
-        'types' => array(
-            'screening' => array(
-                # Name on datacollectionpage => (folder, log file, grep for success, database name for matching)
-                "Mosflm" => array('simple_strategy/', 'strategy_native.log', 'Phi start'),
-                "EDNA" => array('edna/', 'summary.html', 'Selected spacegroup'),
-            ),
-            'autoproc' => array(
-                "Fast DP" => array('fast_dp/', 'fast_dp.log', 'I/sigma', 'fast_dp'),
-
-                "Xia2/3dii" => array('xia2/3dii-run/', 'xia2.txt' , 'I/sigma', 'xia2 3dii'),
-                "DIALS" => array('xia2/dials-run/', 'xia2.txt' , 'I/sigma', 'xia2 dials'),
-
-                "Xia2/Multiplex" => array('xia2.multiplex/', 'xia2.multiplex.log' , 'clustering summary', 'xia2.multiplex'),
-
-                "autoPROC" => array('autoPROC/ap-run/', 'autoPROC.log', 'Normal termination', 'autoPROC'),
-            ),
-            'downstream' => array(
-                "Fast EP" => array('fast_ep/', 'fast_ep.log', 'Best hand:'),
-                "Dimple" => array('fast_dp/dimple/', 'refmac5_restr.log', 'DPI'),
-                "MrBUMP" => array('auto_mrbump/', 'MRBUMP.log', 'Looks like MrBUMP succeeded'),
-                "Big EP/XDS" => array('big_ep/', '/xia2/3dii-run/big_ep*.log', 'Results for', ''),
-                "Big EP/DIALS" => array('big_ep/', '/xia2/dials-run/big_ep_*.log', 'Results for', 'Residues'),
-            )
-        )
-    );
 
     # Active MQ - Set to empty string to disable
     $activemq_server = 'tcp://activemq.server.ac.uk';
@@ -147,7 +127,7 @@
     $dispatch_email = 'ehc@server.ac.uk, goods@server.ac.uk';
     $transfer_email = 'ehc@server.ac.uk';
 
-    # and for RED experiments,
+    # and for RED experiments, 
     # email will be sent for shipments containing red level samples when "send to facility" is clicked
     $cl3_email = 'cl3team@server.ac.uk, goods@server.ac.uk';
 
@@ -161,12 +141,6 @@
                         );
 
 
-    # Array of container histories to trigger a new data notification email
-    $new_data = array(
-        array('processing', 'in_transit_unloading', 'in_local_storage')
-    );
-
-
     # Beamline Sample Registration Machines
     # - Used for touchscreen application (unauthenticated)
     $blsr = array('1.2.3.4', # my touchscreen computer
@@ -174,7 +148,7 @@
 
     # Beamline Sample Registration IP -> Beamline mapping
     # - Third part of ip is used to identify beamline
-    #   x.x.103.x => i03
+    #   x.x.103.x => i03
     $ip2bl = array(103 => 'i03',
                    );
 
@@ -197,10 +171,10 @@
 
     # These idents are used when searching the RCSB for PDBs to generate PDB stats
     $facility_pdb_ident = array('DIAMOND BEAMLINE', 'DIAMOND LIGHT SOURCE BEAMLINE');
-
+    $facility_pdb_site = 'DIAMOND';
 
     # Shipping Address for Labels
-    # - This is added to all shipment label PDFs
+    # - This is added to all shipment label PDFs
     $facility_fao = "The Experimental Hall Coordinators";
     $facility_company = "Diamond Light Source";
     $facility_address = "Fermi Avenue";
@@ -263,7 +237,8 @@
     $auto = array('123.456.789.1');
     $auto_bls = array('i03', 'i04');
 
-
+    # Commissioning Proposal Type
+    $commissioning_code = 'cm';
 
     # Proposal to store beamline presets in
     $preset_proposal = 'cm12345';
@@ -271,9 +246,6 @@
 
     # Beamlines on which to scale the gridplot to 1024
     $scale_grid = array('i24');
-
-    # Proposal codes to list
-    $prop_codes = array('lb', 'cm', 'mx', 'nt', 'nr', 'sw', 'in', 'mt', 'ee', 'em', 'sm');
 
 
     # These map proposal types to their proposalcode
@@ -283,9 +255,28 @@
     # This maps beamlinename in blsession to a proposal type
     # - Internal maps a beamline to an api "type", there are currently:
     #     mx, gen, em
-    $bl_types = array('mx' => array('i02', 'i03', 'i04'),
-                      'gen' => array('i11'),
-                      );
+    $bl_types = array(
+        array(
+            'name' => 'i02',
+            'group' => 'mx',
+            'archived' => True
+        ),
+        array(
+            'name' => 'i03',
+            'group' => 'mx',
+            'archived' => False
+        ),
+        array(
+            'name' => 'i04',
+            'group' => 'mx',
+            'archived' => False
+        ),
+        array(
+            'name' => 'i11',
+            'group' => 'gen',
+            'archived' => False
+        )
+    );
 
 
     # Webcam IPs
@@ -302,14 +293,14 @@
 
     # Beamline Parameter Type
     # - Defines what type of system the beamline parameters use
-    #   For future implementation of Tango, currently only support EPICS
+    #   For future implementation of Tango, currently only support EPICS
     $bl_pv_type = 'EPICS';
     $bl_pv_prog = '/path/to/caget';
     $bl_pv_env = 'EPICS_CA_ADDR_LIST=123.45.678.9';
 
     # PVs for beamline status
     # - These are displayed on an active visit so remote users can see beamline status
-    #   In future these could be Tango variables
+    #   In future these could be Tango variables
     $bl_pvs = array(
                             'i02' => array('Hutch' => 'BL02I-PS-IOC-01:M14:LOP',
                                            'Port Shutter' => 'FE02I-PS-SHTR-01:STA',

@@ -1,11 +1,14 @@
 This installation uses synchweb from the local folder to allow local
 development. This needs to be cloned and initialised with dependencies.
 
-First NPM:
+Check node version `node --version`. If node is v16, then it won't work and
+falls over on - at least - node-sass ([`sass/node-sass#3077`](https://github.com/sass/node-sass/issues/3077)).
+
+
 ```
-git clone https://github.com/DiamondLightSource/SynchWeb.git synchweb
+git clone https://github.com/DiamondLightSource/SynchWeb.git synchweb -b vue_master
 cd synchweb/client
-npm install
+LIBSASS_EXT="no" npm install # or, have libsass installed on the system separately
 npm run-script build:dev
 ```
 
