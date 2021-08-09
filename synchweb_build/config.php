@@ -11,11 +11,11 @@
     $mode = 'dev';
 
     # Database credentials, db = hostname/database
-    $isb  = array('user' => 'user', 'pass' => 'pass', 'db' => 'localhost/ispyb');
+    $isb  = array('user' => 'ispyb', 'pass' => 'ispyb', 'db' => 'db/ispyb');
     $dbtype = 'mysql';
 
 
-    # Encoded JWT key, used to sign and check validaty of jwt tokens
+    # Encoded JWT key, used to sign and check validaty of jwt tokens
     # - Create one of these using /api/authenticate/key
     #   This can be changed to invalidate all currently active tokens
     $jwt_key = '';
