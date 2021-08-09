@@ -8,11 +8,12 @@ falls over on - at least - node-sass ([`sass/node-sass#3077`](https://github.com
 ```
 git clone https://github.com/DiamondLightSource/SynchWeb.git synchweb -b vue_master
 cd synchweb/client
-LIBSASS_EXT="no" npm install # or, have libsass installed on the system separately
+npm install
 npm run-script build:dev
 ```
 
-If running composer in PHP7, add to api/composer.json:
+If running composer in PHP!=5 (which you almost certainly are), add to
+`synchweb/api/composer.json`:
 ```
   "config": {
     "platform": {
